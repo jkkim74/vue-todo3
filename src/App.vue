@@ -3,7 +3,7 @@
     <TodoHeader></TodoHeader> 
     <TodoInput></TodoInput>
     <TodoList></TodoList>
-    <TodoFooter v-on:clearAllTodo="clearAllItems"></TodoFooter>  
+    <TodoFooter></TodoFooter>  
   </div>
 </template>
 
@@ -14,13 +14,6 @@ import TodoFooter from './components/TodoFooter.vue'
 import TodoInput from './components/TodoInput.vue'
 
 export default {
-  methods: {
-
-    clearAllItems(){
-      localStorage.clear();
-      this.$store.state.todoItems = [];
-    }
-  },
   components:{
      TodoHeader,
      TodoInput,
