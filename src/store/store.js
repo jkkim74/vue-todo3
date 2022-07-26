@@ -15,7 +15,7 @@ const apiClient = axios.create({
 
 const storage = {
     fetch(){
-        let arr = [];
+        const arr = [];
      //   if(localStorage.length >= 0){
     //     for(let i = 0 ; i < localStorage.length ; i ++){
     //       if(localStorage.key(i) !== "loglevel:webpack-dev-server"){
@@ -24,8 +24,12 @@ const storage = {
     //     }
     //   }
 
-       arr = apiClient.get('/items/list');
-       console.log(arr);
+       apiClient.get('/items/list')
+       .then(res => {
+            res.data.data.forEach(item => {
+                arr.push(item);
+            });
+       });
       return arr;
     }
 }
