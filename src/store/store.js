@@ -41,22 +41,20 @@ export const store = new Vuex.Store({
     },
     mutations: {
         addOneItem(state,todoItem){
-            const obj = {};
+            //let obj = {};
             console.log(todoItem);
             //저장로직수행
             //localStorage.setItem(todoItem, JSON.stringify(obj));
             apiClient.put("/items/saveItem",{name: todoItem})
             .then(res =>{
                 console.log(res.data);
-                obj.id = res.data.id;
-                obj.completed = res.data.completed;
-                obj.name = res.data.name;
+                state.todoItems.push(res.data);
             }).catch(function(error){
                 console.log(error);
             });
             //this.todoItems.push(obj);
-            console.log("===>"+obj);
-            state.todoItems.push(obj);
+            //console.log("===>"+obj);
+           
         },
         removeOneItem(state,payload){
             console.log("removeOneItem");
@@ -71,13 +69,26 @@ export const store = new Vuex.Store({
         },
         toggleOneItem(state,payload){
             console.log(state.todoItems[payload.index]);
-            state.todoItems[payload.index].completed = !state.todoItems[payload.index].completed;
+            let isCompleted = !state.todoItems[payload.index].completed;
+            apiClient.post("/items/updateItem",{id:payload.todoItem.id,completed:isCompleted})
+            .then(res => {
+                console.log(res.data);
+            }).catch(function(error){
+                console.log(error);
+            });
+            state.todoItems[payload.index].completed = isCompleted
             // localStorage는 업데이트가 없으므로 해당 ITEM을 삭제 후, 재정의하여 업데이트 처리를 한다..
             //localStorage.removeItem(payload.todoItem.item);
             //localStorage.setItem(payload.todoItem.item,JSON.stringify(payload.todoItem));
         },
         clearAllItems(state){
-            localStorage.clear();
+            //localStorage.clear();
+            apiClient.delete("/items/delete/all")
+            .then(res =>{
+                console.log(res.data);
+            }).catch(function(error){
+                console.log(error);
+            });
             state.todoItems = [];
         },
 
