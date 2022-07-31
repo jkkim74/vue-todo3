@@ -1,27 +1,31 @@
 <template>
   <div class="clearAllContainer">
-    <div class="pagination">
-      <a href="#">&laquo;</a>
-      <a href="#">1</a>
-      <a class="active" href="#">2</a>
-      <a href="#">3</a>
-      <a href="#">4</a>
-      <a href="#">&raquo;</a>
-    </div>
+    <Paginate :page-count="2" :page-range="3" :margin-pages="2" :click-handler="clickCallback" :prev-text="'Prev'"
+      :next-text="'Next'" :container-class="'pagination'" :page-class="'page-item'">
+    </Paginate>
     <span class="clearAllBtn" v-on:click="clearTodo">
       Clear all
     </span>
   </div>
-  
+
 </template>
 
 <script>
+import Paginate from 'vuejs-paginate'
+
 export default {
   methods: {
     clearTodo(){
       //this.$emit("clearAllTodo");
       this.$store.commit("clearAllItems");
+    },
+    clickCallback(pageNum){
+      console.log(pageNum);
+      this.$store.commit("itemListByPage",pageNum - 1);
     }
+  },
+  components:{
+    Paginate: Paginate
   }
 
 }
@@ -42,22 +46,11 @@ export default {
   display: block;
 }
 .pagination {
-  display: inline-block;
+
 }
 
-.pagination a {
-  color: black;
-  float: left;
-  padding: 4px 8px;
-  text-decoration: none;
+.page-item {
+
 }
 
-.pagination a.active {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.pagination a:hover:not(.active) {
-  background-color: #ddd;
-}
 </style>

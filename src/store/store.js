@@ -24,7 +24,7 @@ const storage = {
     //     }
     //   }
 
-       apiClient.get('/items/list')
+       apiClient.get('/items/list?offset=0')
        .then(res => {
             res.data.data.forEach(item => {
                 arr.push(item);
@@ -90,6 +90,17 @@ export const store = new Vuex.Store({
                 console.log(error);
             });
             state.todoItems = [];
+        },
+        itemListByPage(state,pageNum){
+            const arr = [];
+
+            apiClient.get('/items/list?offset='+pageNum)
+            .then(res => {
+                    res.data.data.forEach(item => {
+                        arr.push(item);
+                    });
+            });
+            state.todoItems = arr;
         },
 
     }
