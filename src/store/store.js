@@ -15,7 +15,10 @@ const apiClient = axios.create({
 
 const storage = {
     fetch(){
-        const arr = [];
+        const result = {
+            content: [],
+            totalPages: 0
+        };
      //   if(localStorage.length >= 0){
     //     for(let i = 0 ; i < localStorage.length ; i ++){
     //       if(localStorage.key(i) !== "loglevel:webpack-dev-server"){
@@ -24,20 +27,23 @@ const storage = {
     //     }
     //   }
 
-       apiClient.get('/items/list?offset=0')
+       apiClient.get('/items/list?page=0&size=5')
        .then(res => {
-            res.data.data.forEach(item => {
-                arr.push(item);
+            res.data.content.forEach(item => {
+                result.content.push(item);
             });
+            console.log("totalPages ===> "+res.data.totalPages);
+            result.totalPages = res.data.totalPages;
        });
-      return arr;
+      return result;
     }
 }
 
 
 export const store = new Vuex.Store({
     state: {
-        todoItems: storage.fetch()
+        todoItems: storage.fetch().content,
+        totalPages: storage.fetch().totalPages,
     },
     mutations: {
         addOneItem(state,todoItem){
@@ -94,11 +100,12 @@ export const store = new Vuex.Store({
         itemListByPage(state,pageNum){
             const arr = [];
 
-            apiClient.get('/items/list?offset='+pageNum)
+            apiClient.get('/items/list?offset='+pageNum+"&size=5")
             .then(res => {
-                    res.data.data.forEach(item => {
+                    res.data.content.forEach(item => {
                         arr.push(item);
                     });
+                    state.totalPages = res.data.totalPages;
             });
             state.todoItems = arr;
         },
