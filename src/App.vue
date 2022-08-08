@@ -15,7 +15,7 @@ import TodoInput from './components/TodoInput.vue'
 
 
 export default {
-  components:{
+  components: {
      TodoHeader,
      TodoInput,
      TodoList,

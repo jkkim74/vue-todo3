@@ -13,39 +13,54 @@ const apiClient = axios.create({
   }
 })
 
-const storage = {
-    fetch(){
-        const result = {
-            content: [],
-            totalPages: 0
-        };
-     //   if(localStorage.length >= 0){
-    //     for(let i = 0 ; i < localStorage.length ; i ++){
-    //       if(localStorage.key(i) !== "loglevel:webpack-dev-server"){
-    //         arr.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
-    //       }
-    //     }
-    //   }
+// const storage = {
+//     fetch(){
+//         const result = {
+//             content: [],
+//             totalPages: 0
+//         };
+//      //   if(localStorage.length >= 0){
+//     //     for(let i = 0 ; i < localStorage.length ; i ++){
+//     //       if(localStorage.key(i) !== "loglevel:webpack-dev-server"){
+//     //         arr.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
+//     //       }
+//     //     }
+//     //   }
 
-       apiClient.get('/items/list?page=0&size=5')
-       .then(res => {
-            res.data.content.forEach(item => {
-                result.content.push(item);
-            });
-            console.log("totalPages ===> "+res.data.totalPages);
-            result.totalPages = res.data.totalPages;
-       });
-      return result;
-    }
-}
+//        apiClient.get('/items/list?page=0&size=5')
+//        .then(res => {
+//             res.data.content.forEach(item => {
+//                 result.content.push(item);
+//             });
+//             console.log("totalPages ===> "+res.data.totalPages);
+//             result.totalPages = res.data.totalPages;
+//        });
+//       return result;
+//     }
+// }
 
 
 export const store = new Vuex.Store({
     state: {
-        todoItems: storage.fetch().content,
-        totalPages: storage.fetch().totalPages,
+        todoItems: [],
+        totalPages: 0,
+    },
+    getters: {
+        storedTodoItemsTotalPages(state){
+            return state.totalPages;
+        },
+        storedTodoItems(state){
+             return state.todoItems;
+        }
     },
     mutations: {
+        setData(state, fetchedData){
+            console.log(fetchedData);
+            fetchedData.data.content.forEach(item => {
+                state.todoItems.push(item);
+            });
+            state.totalPages = fetchedData.data.totalPages;
+        },
         addOneItem(state,todoItem){
             //let obj = {};
             console.log(todoItem);
@@ -99,18 +114,28 @@ export const store = new Vuex.Store({
         },
         itemListByPage(state,pageNum){
             const arr = [];
-
-            apiClient.get('/items/list?offset='+pageNum+"&size=5")
+            console.log("pageNum=====>"+pageNum);
+            apiClient.get('/items/list?offset='+pageNum+"&limit=5")
             .then(res => {
                     res.data.content.forEach(item => {
                         arr.push(item);
                     });
                     state.totalPages = res.data.totalPages;
             });
+            console.log(arr);
             state.todoItems = arr;
         },
+
+    },
+    actions: {
+        fetchProductData(context) {
+            apiClient.get('/items/list?offset=0&limit=5')
+            .then(res => context.commit("setData",res));
+        }
 
     }
 
 });
+
+store.dispatch("fetchProductData");
 
