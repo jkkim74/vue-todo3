@@ -1,6 +1,6 @@
 <template>
   <div class="clearAllContainer">
-    <Paginate :page-count="this.$store.getters.storedTodoItemsTotalPages" :page-range="3" :margin-pages="2"
+    <Paginate :page-count="this.$store.state.totalPages" :page-range="3" :margin-pages="2"
       :click-handler="clickCallback" :prev-text="'Prev'" :next-text="'Next'" :container-class="'pagination'"
       :page-class="'page-item'">
     </Paginate>
@@ -13,16 +13,26 @@
 
 <script>
 import Paginate from 'vuejs-paginate'
+import { mapMutations,mapActions } from 'vuex';
+mapMutations
 export default {
   methods: {
-    clearTodo(){
-      //this.$emit("clearAllTodo");
-      this.$store.commit("clearAllItems");
-    },
-    clickCallback(pageNum){
-      console.log(pageNum);
-      this.$store.commit("itemListByPage",pageNum - 1);
-    }
+    // clearTodo(){
+    //   //this.$emit("clearAllTodo");
+    //   this.$store.commit("clearAllItems");
+    // }
+    ...mapMutations({
+      clearTodo: 'clearAllItems'
+    })
+    ,
+    // clickCallback(pageNum){
+    //   console.log(pageNum);
+    //   //this.$store.commit("itemListByPage",pageNum - 1);
+    //   this.$store.dispatch("fetchItemListByPage",pageNum);
+    // }
+    ...mapActions({
+      clickCallback: 'fetchItemListByPage'
+    })
   },
   components:{
     Paginate: Paginate
@@ -33,9 +43,9 @@ export default {
 
 <style scoped>
 .clearAllContainer {
-  width: 24rem;
-  height: 50px;
-  line-height: 50px;
+  width: 100%;
+  height: 90px;
+  line-height: 80px;
   background-color: white;
   border-radius: 5px;
   margin: 0 auto;

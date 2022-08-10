@@ -1,11 +1,11 @@
 <template>
   <div>
     <transition-group name="list" tag="ul">
-      <li v-for="(todoItem, index) in this.$store.getters.storedTodoItems " v-bind:key="todoItem.id" class="shadow">
+      <li v-for="(todoItem, index) in this.storedTodoItems " v-bind:key="todoItem.id" class="shadow">
         <i class="checkBtn fas fa-check" v-bind:class="{checkBtnCompleted: todoItem.completed}"
-          v-on:click="toggleComplete(todoItem,index)"></i>
+          v-on:click="toggleComplete({todoItem,index})"></i>
         <span v-bind:class="{textCompleted: todoItem.completed}">{{todoItem.name}}</span>
-        <span class="removeBtn" v-on:click="removeTodo(todoItem, index)">
+        <span class="removeBtn" v-on:click="removeTodo({todoItem, index})">
           <i class="removeBtn fas fa-trash-alt"></i>
         </span>
       </li>
@@ -14,18 +14,33 @@
 </template>
 
 <script>
+import { mapGetters,mapMutations,mapActions } from 'vuex';
+
 export default {
   methods:{ 
-    removeTodo(todoItem, index){
-      console.log(todoItem, index);
-      //this.$emit("removeTodoItem",todoItem,index)
-      this.$store.commit("removeOneItem",{todoItem,index});
-    },
-    toggleComplete(todoItem,index){
-      console.log(todoItem,index);
-      //this.$emit("toggleTodoItem",todoItem,index);
-      this.$store.commit("toggleOneItem", {todoItem, index});
-    }
+    // removeTodo(todoItem, index){
+    //   console.log(todoItem, index);
+    //   this.$store.dispatch("fetchRemoveOneItem",{todoItem,index});
+    //   //...mapActions(['fetchRemoveOneItem'],{todoItem,index,pageNum})
+    // }
+    ...mapActions({
+      removeTodo: 'fetchRemoveOneItem'
+    })
+    ,
+    ...mapMutations({
+      toggleComplete: 'toggleOneItem'
+    })
+    // toggleComplete(todoItem,index){
+    //   console.log(todoItem,index);
+    //   //this.$emit("toggleTodoItem",todoItem,index);
+    //   this.$store.commit("toggleOneItem", {todoItem, index});
+    // }
+  },
+  computed: {
+    // todoItems(){
+    //   return this.$store.getters.storedTodoItems;
+    // }
+    ...mapGetters(['storedTodoItems'])
   }
 }
 </script>
@@ -66,7 +81,7 @@ li {
 }
 /** list 아이템 트랜지션 효과 */
 .list-enter-active, .list-leave-active {
-  transition: all 0.5s;
+  transition: all 0s;
 }
 .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
   opacity: 0;

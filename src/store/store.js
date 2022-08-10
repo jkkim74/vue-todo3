@@ -13,6 +13,12 @@ const apiClient = axios.create({
   }
 })
 
+// function getData(callbackFunc){
+//     apiClient.get('/items/list?page=0&size=5')
+//     .then(res => callbackFunc(res));
+// }
+
+
 // const storage = {
 //     fetch(){
 //         const result = {
@@ -26,15 +32,17 @@ const apiClient = axios.create({
 //     //       }
 //     //     }
 //     //   }
-
-//        apiClient.get('/items/list?page=0&size=5')
-//        .then(res => {
-//             res.data.content.forEach(item => {
-//                 result.content.push(item);
-//             });
-//             console.log("totalPages ===> "+res.data.totalPages);
+//       getData(function(res){
+//         console.log("totalPages ===> "+res.data.totalPages);
+//         if(res.data.totalPages !== 0){
 //             result.totalPages = res.data.totalPages;
-//        });
+//         }
+//         res.data.content.forEach(item => {
+//             result.content.push(item);
+//         });
+        
+//       });
+//        //console.log("result.totalPages ===> "+result.totalPages);
 //       return result;
 //     }
 // }
@@ -42,51 +50,49 @@ const apiClient = axios.create({
 
 export const store = new Vuex.Store({
     state: {
-        todoItems: [],
-        totalPages: 0,
+        todoItems: [],//storage.fetch().content,
+        totalPages: 0,//storage.fetch().totalPages,
+        pageNum:0,
     },
     getters: {
-        storedTodoItemsTotalPages(state){
-            return state.totalPages;
+        getPageNum(state){
+            return state.pageNum;
         },
         storedTodoItems(state){
-             return state.todoItems;
+            return state.todoItems;
         }
+
     },
     mutations: {
-        setData(state, fetchedData){
-            console.log(fetchedData);
+        createData(state, fetchedData){
+            const content = [];
             fetchedData.data.content.forEach(item => {
-                state.todoItems.push(item);
+                content.push(item);
             });
+            console.log(fetchedData.data.totalPages);
+            console.log(content);
+            state.todoItems = content;
             state.totalPages = fetchedData.data.totalPages;
+            state.pageNum = fetchedData.data.number;
         },
-        addOneItem(state,todoItem){
+        addOneItem(state,fetchedData){
             //let obj = {};
-            console.log(todoItem);
-            //저장로직수행
-            //localStorage.setItem(todoItem, JSON.stringify(obj));
-            apiClient.put("/items/saveItem",{name: todoItem})
-            .then(res =>{
-                console.log(res.data);
-                state.todoItems.push(res.data);
-            }).catch(function(error){
-                console.log(error);
-            });
-            //this.todoItems.push(obj);
-            //console.log("===>"+obj);
+            console.log(fetchedData);
+            store.commit("createData",fetchedData);
            
         },
-        removeOneItem(state,payload){
+        removeOneItem(state,fetchedData){
             console.log("removeOneItem");
+            console.log(fetchedData);
+            store.commit("createData",fetchedData);
             //localStorage.removeItem(payload.todoItem.item);
-            apiClient.delete("/items/delete/"+payload.todoItem.id)
-            .then(res =>{
-                console.log(res.data);
-            }).catch(function(error){
-                console.log(error);
-            });
-            state.todoItems.splice(payload.index,1);
+            // apiClient.delete("/items/delete/"+payload.todoItem.id)
+            // .then(res =>{
+            //     console.log(res.data);
+            // }).catch(function(error){
+            //     console.log(error);
+            // });
+            // state.todoItems.splice(payload.index,1);
         },
         toggleOneItem(state,payload){
             console.log(state.todoItems[payload.index]);
@@ -112,30 +118,36 @@ export const store = new Vuex.Store({
             });
             state.todoItems = [];
         },
-        itemListByPage(state,pageNum){
-            const arr = [];
-            console.log("pageNum=====>"+pageNum);
-            apiClient.get('/items/list?offset='+pageNum+"&limit=5")
-            .then(res => {
-                    res.data.content.forEach(item => {
-                        arr.push(item);
-                    });
-                    state.totalPages = res.data.totalPages;
-            });
-            console.log(arr);
-            state.todoItems = arr;
+        itemListByPage(state,fetchedData){
+            store.commit("createData",fetchedData);
         },
 
     },
     actions: {
-        fetchProductData(context) {
-            apiClient.get('/items/list?offset=0&limit=5')
-            .then(res => context.commit("setData",res));
-        }
+        fetchTodoItems(context){
+            return axios.get('/items/list?offset=0&size=5')
+            .then(response => context.commit('createData',response));
+        },
+        fetchAddTodoItem(context,todoItem){
+            return axios.put("/items/saveItem",{name: todoItem})
+            .then(response => context.commit('addOneItem',response));
 
+        },
+        fetchItemListByPage(context,pageNum){
+            let num = pageNum - 1;
+            return axios.get('/items/list?offset='+num+'&size=5')
+            .then(response => context.commit('itemListByPage',response));
+
+        },
+        fetchRemoveOneItem(context,payload){
+            let pageNum = store.getters.getPageNum;
+            return axios.delete('/items/delete/'+pageNum+'/'+payload.todoItem.id)
+            .then(response => context.commit('removeOneItem',response));
+
+        }
     }
 
 });
 
-store.dispatch("fetchProductData");
+store.dispatch("fetchTodoItems");
 
