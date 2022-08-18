@@ -18,11 +18,6 @@ import { mapGetters,mapMutations,mapActions } from 'vuex';
 
 export default {
   methods:{ 
-    // removeTodo(todoItem, index){
-    //   console.log(todoItem, index);
-    //   this.$store.dispatch("fetchRemoveOneItem",{todoItem,index});
-    //   //...mapActions(['fetchRemoveOneItem'],{todoItem,index,pageNum})
-    // }
     ...mapActions({
       removeTodo: 'fetchRemoveOneItem'
     })
@@ -30,16 +25,8 @@ export default {
     ...mapMutations({
       toggleComplete: 'toggleOneItem'
     })
-    // toggleComplete(todoItem,index){
-    //   console.log(todoItem,index);
-    //   //this.$emit("toggleTodoItem",todoItem,index);
-    //   this.$store.commit("toggleOneItem", {todoItem, index});
-    // }
   },
   computed: {
-    // todoItems(){
-    //   return this.$store.getters.storedTodoItems;
-    // }
     ...mapGetters(['storedTodoItems'])
   }
 }
