@@ -84,7 +84,7 @@ const actions = {
 
     },
     fetchRemoveOneItem(context,payload){
-        let pageNum = getters.getPageNum;
+        let pageNum = state.pageNum;
         return axios.delete('/items/delete/'+pageNum+'/'+payload.todoItem.id)
         .then(response => context.commit('createData',response));
     }
